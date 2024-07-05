@@ -1,0 +1,49 @@
+import os
+import fnmatch
+
+# def get_ignore_list(directory):
+#     ignore_file = os.path.join(directory, '.bakzipignore')
+#     ignore_list = []
+#     if os.path.exists(ignore_file):
+#         with open(ignore_file, 'r') as file:
+#             for line in file:
+#                 line = line.strip()
+#                 if line and not line.startswith('#'):
+#                     ignore_list.append(line)
+#     return ignore_list
+
+
+def get_ignore_list(directory):
+    ignore_list = []
+    ignore_file = os.path.join(directory, '.bakzipignore')
+    if os.path.exists(ignore_file):
+        with open(ignore_file, 'r') as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith('#'):  # Ignore comments and empty lines
+                    ignore_list.append(line)
+    return ignore_list
+
+def should_ignore(path, ignore_list):
+    for pattern in ignore_list:
+        if fnmatch.fnmatch(path, pattern):
+            return True
+    return False
+
+def process_directory(directory, log_file_path):
+    ignore_list = get_ignore_list(directory)
+    files_to_include = []
+    skipped_files = []
+    total_skipped_size = 0
+    with open(log_file_path, 'w') as log_file:
+        for root, dirs, files in os.walk(directory, topdown=True):
+            dirs[:] = [d for d in dirs if not should_ignore(os.path.relpath(os.path.join(root, d), directory), ignore_list)]
+            for file in files:
+                file_path = os.path.join(root, file)
+                if not should_ignore(os.path.relpath(file_path, directory), ignore_list):
+                    files_to_include.append(file_path)
+                else:
+                    skipped_files.append(file_path)
+                    total_skipped_size += os.path.getsize(file_path)
+                    log_file.write(f"Skipped: {file_path}\n")
+    return files_to_include, skipped_files, total_skipped_size

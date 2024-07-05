@@ -1,0 +1,5 @@
+pyzipper
+tqdm
+setuptools
+pyfiglet
+pytest

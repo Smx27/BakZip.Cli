@@ -1,0 +1,54 @@
+name: Test BakZip
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest coverage black flake8
+
+      - name: Run tests
+        run: |
+          pytest --cov=bakzip --cov-report=term-missing
+          coverage report -m
+
+      - name: Check code formatting
+        run: black . --check
+
+      - name: Run linting
+        run: flake8 .
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            .venv
+            tests/.pytest_cache
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+            ${{ runner.os }}-
+

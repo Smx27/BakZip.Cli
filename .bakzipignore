@@ -1,0 +1,45 @@
+# ############################################################## #  
+# .______        ___       __  ___  ________   __  .______       #  
+# |   _  \      /   \     |  |/  / |       /  |  | |   _  \      #  
+# |  |_)  |    /  ^  \    |  '  /  `---/  /   |  | |  |_)  |     #  
+# |   _  <    /  /_\  \   |    <      /  /    |  | |   ___/      #  
+# |  |_)  |  /  _____  \  |  .  \    /  /----.|  | |  |          #  
+# |______/  /__/     \__\ |__|\__\  /________||__| | _|          #  
+#                                                                #  
+# ############################################################## #  
+
+# To exclude a specific type of file just use *.Extenstion and for directory Directory_Name/ or Directory_Name
+# If we exclude directory it will exclude the subdirectory too 
+
+# Exclude all .log files
+*.log
+
+# Exclude all .tmp files
+*.tmp
+
+# Exclude all .bak files
+*.bak
+
+# Exclude node_modules folder
+node_modules
+
+# Exclude __pycache__ folders
+__pycache__/*
+
+# Exclude all .DS_Store files (macOS)
+.DS_Store
+
+# Exclude .git folder
+.git/
+
+# Exclude any .env files
+.env
+
+# Exclude any test folders
+test/
+tests/
+
+# Exclude Dotnet files
+bin/
+obj/
+package/
