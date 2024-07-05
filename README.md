@@ -3,14 +3,14 @@
 BakZip is a command-line interface (CLI) tool designed to simplify the process of backing up directories by compressing them into ZIP archives. It offers features like password protection, customizable compression levels, and the ability to exclude specific files and folders from the backup.
  
  [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
- [![GitHub Stars](https://img.shields.io/github/stars/smx27/bakzip)](https://github.com/smx27/bakzip/stargazers)
- [![GitHub Forks](https://img.shields.io/github/forks/smx27/bakzip)](https://github.com/smx27/bakzip/network/members)
- [![GitHub Issues](https://img.shields.io/github/issues/smx27/bakzip)](https://github.com/smx27/bakzip/issues)
- [![GitHub Pull Requests](https://img.shields.io/github/issues-pr/smx27/bakzip)](https://github.com/smx27/bakzip/pulls)
+ [![GitHub Stars](https://img.shields.io/github/stars/smx27/BakZip.Cli)](https://github.com/smx27/BakZip.Cli/stargazers)
+ [![GitHub Forks](https://img.shields.io/github/forks/smx27/BakZip.Cli)](https://github.com/smx27/BakZip.Cli/network/members)
+ [![GitHub Issues](https://img.shields.io/github/issues/smx27/BakZip.Cli)](https://github.com/smx27/BakZip.Cli/issues)
+ [![GitHub Pull Requests](https://img.shields.io/github/issues-pr/smx27/BakZip.Cli)](https://github.com/smx27/BakZip.Cli/pulls)
 
 ## Features
 
-The BakZip tool comes with a wide range of features to enhance your sharing experience:
+The BakZip.Cli tool comes with a wide range of features to enhance your sharing experience:
 
 - **Password**: While compressing up things .
 - **Detailed Forecasts**: View hourly and daily weather forecasts with detailed information.
@@ -23,8 +23,8 @@ The BakZip tool comes with a wide range of features to enhance your sharing expe
 
 1. **Clone the Repository:**
 ```bash
-git clone https://github.com/yourusername/bakzip.git
-cd bakzip
+git clone https://github.com/Smx27/BakZip.Cli.git
+cd BakZip.Cli
     ```
 
 2. **Create a Virtual Environment (Recommended):**
