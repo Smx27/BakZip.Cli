@@ -25,7 +25,7 @@ The BakZip.Cli tool comes with a wide range of features to enhance your sharing 
 ```bash
 git clone https://github.com/Smx27/BakZip.Cli.git
 cd BakZip.Cli
-    ```
+```
 
 2. **Create a Virtual Environment (Recommended):**
 ```bash
