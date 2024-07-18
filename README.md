@@ -9,15 +9,14 @@ BakZip is a command-line interface (CLI) tool designed to simplify the process o
  [![GitHub Pull Requests](https://img.shields.io/github/issues-pr/smx27/BakZip.Cli)](https://github.com/smx27/BakZip.Cli/pulls)
 
 ## Features
+The BakZip.Cli tool offers a comprehensive set of features to enhance your file compression and sharing experience:
 
-The BakZip.Cli tool comes with a wide range of features to enhance your sharing experience:
-
-- **Password**: While compressing up things .
-- **Detailed Forecasts**: View hourly and daily weather forecasts with detailed information.
-- **Interactive Maps**: Explore interactive maps to visualize weather patterns.
-- **Weather Alerts**: Receive weather alerts and notifications for severe conditions.
-- **Customization**: Personalize the app with your favorite locations and weather preferences.
-- **Multi-language Support**: The app supports multiple languages to cater to a global audience.
+- **Password Protection**: Secure your compressed files with a password to ensure only authorized access.
+- **Encryption**: Utilize professional-grade encryption methods such as AES or RSA to protect your data.
+- **Format Support**: Compatible with various formats including ZIP, RAR, TAR, and TAR.GZ for optimal compression.
+- **Verbose Logging**: Enable verbose logging to get detailed information about which files are skipped or backed up.
+- **Log Files**: Generate log files that contain information about skipped files for easy reference.
+- **Advanced Compression**: Achieve best-in-class compression, with the potential to reduce file sizes by up to 250%.
 
 ## Installation
 

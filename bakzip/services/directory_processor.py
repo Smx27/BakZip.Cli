@@ -27,12 +27,11 @@ def get_ignore_list():
                 if line and not line.startswith('#'):
                     ignore_list.append(line)
                     if line.endswith('/'):
-                        ignore_list.append(line + '*')
-                        ignore_list.append('*/' + line)
-                    if line.find('.') == -1 and not line.endswith('/'):
-                        ignore_list.append(line + '/')
-                        ignore_list.append(line + '/*')
-                        ignore_list.append('*/' + line)
+                        if not line.startswith('*/') and not line.startswith('/'):
+                            ignore_list.extend([line + '*', '*/' + line, '*/' + line + '*'])
+
+                    if '.' not in line and not line.endswith('/'):
+                        ignore_list.extend([line + '/', line + '/*', '*/' + line, '*/' + line + '/*'])
 
     return ignore_list
 

@@ -42,4 +42,4 @@ tests/
 # Exclude Dotnet files
 bin/
 obj/
-package/
+packages/
