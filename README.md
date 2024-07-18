@@ -19,7 +19,7 @@ The BakZip.Cli tool offers a comprehensive set of features to enhance your file 
 - **Advanced Compression**: Achieve best-in-class compression, with the potential to reduce file sizes by up to 250%.
 
 ## Installation
-
+If you are using windows `powershell` please open that in administrator mode else you will find error. Also for unix use `sudo`.
 1. **Clone the Repository:**
 ```bash
 git clone https://github.com/Smx27/BakZip.Cli.git
