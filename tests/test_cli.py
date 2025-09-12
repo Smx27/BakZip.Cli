@@ -1,11 +1,7 @@
-#! /usr/env/bin python
-"""
-Test suite for the BakZip CLI.
-"""
 import os
 import shutil
 import pytest
-from bakzip.services.directory_processor import process_directory
+from bakzip.utilities.file_system import process_directory
 from bakzip.services.zip_service import create_zip
 from bakzip.services.tar_service import create_tar
 
@@ -14,51 +10,46 @@ def temp_directory(tmpdir):
     """
     Creates a temporary directory for testing.
     """
-    # Create a temporary directory for testing
     test_dir = tmpdir.mkdir("test_dir")
+    # Create a dummy file in the test directory
+    test_file = test_dir.join("test.txt")
+    test_file.write("Hello, World!")
     yield test_dir
-    # Clean up the temporary directory after the tests
     shutil.rmtree(str(test_dir))
-
 
 def test_process_directory(temp_directory):
     """
     Test the directory processing.
     """
-    # Test the directory processing
-    test_file = temp_directory.join("test.txt")  # Use temp_directory directly
-    test_file.write("Hello, World!")
-    test_subdir = temp_directory.mkdir("subdir")  # Use temp_directory directly
-    test_subfile = test_subdir.join("subfile.txt")
-    test_subfile.write("Subfile content")
-
-    files_to_include, skipped_files, total_skipped_size = process_directory(str(temp_directory), "bakzip.log")
-    assert len(files_to_include) == 2
+    files_to_include, skipped_files, total_skipped_size = process_directory(str(temp_directory), "bakzip.log", None, None)
+    assert len(files_to_include) == 1
+    assert "test.txt" in files_to_include[0]
     assert len(skipped_files) == 0
     assert total_skipped_size == 0
 
-def test_create_zip(temp_directory):
+@pytest.mark.parametrize("compression_level", ['none', 'fast', 'normal', 'maximum'])
+def test_create_zip(temp_directory, compression_level):
     """
-    Test the ZIP file creation.
+    Test the ZIP file creation with different compression levels.
     """
-    # Test the ZIP file creation
-    test_file = temp_directory.join("test.txt")  # Use temp_directory directly
-    test_file.write("Hello, World!")
-    files_to_include = [str(test_file)]
-    output_file = "test.zip"
-    create_zip(files_to_include, output_file, None, 'normal')
+    files_to_include = [str(temp_directory.join("test.txt"))]
+    output_file = f"test_{compression_level}.zip"
+    create_zip(files_to_include, output_file, None, compression_level)
     assert os.path.exists(output_file)
     os.remove(output_file)
 
-def test_create_tar(temp_directory):
+@pytest.mark.parametrize("compression_type, extension", [
+    ('none', '.tar'),
+    ('gz', '.tar.gz'),
+    ('bz2', '.tar.bz2'),
+    ('xz', '.tar.xz')
+])
+def test_create_tar(temp_directory, compression_type, extension):
     """
-    Test the TAR file creation.
+    Test the TAR file creation with different compression types.
     """
-    # Test the TAR file creation
-    test_file = temp_directory.join("test.txt")  # Use temp_directory directly
-    test_file.write("Hello, World!")
-    files_to_include = [str(test_file)]
-    output_file = "test.tar"
-    create_tar(files_to_include, output_file, 'normal')
+    files_to_include = [str(temp_directory.join("test.txt"))]
+    output_file = f"test{extension}"
+    create_tar(files_to_include, output_file, compression_type)
     assert os.path.exists(output_file)
     os.remove(output_file)

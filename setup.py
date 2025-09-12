@@ -21,9 +21,10 @@ setup(
     license='MIT',
     install_requires=[
         'pyzipper',
-        'tqdm',
         'pyfiglet',
-        'pytest'
+        'pytest',
+        'rich',
+        'requests'
     ],
     entry_points={
         'console_scripts': [

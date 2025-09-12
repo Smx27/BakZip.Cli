@@ -53,13 +53,15 @@ def should_ignore(path, ignore_list):
     return False
 
 
-def process_directory(directory, log_file_path):
+def process_directory(directory, log_file_path, progress=None, task_id=None):
     """
     Processes a directory, filtering files based on a .bakzipignore file.
 
     Args:
         directory: The directory to process.
         log_file_path: The path to the log file.
+        progress: A rich.progress.Progress object.
+        task_id: The ID of the task in the progress bar.
 
     Returns:
         A tuple containing:
@@ -68,27 +70,38 @@ def process_directory(directory, log_file_path):
             - The total size of skipped files.
     """
     ignore_list = get_ignore_list()
+
+    # First pass: count files for accurate progress bar
+    total_files_to_process = 0
+    for root, dirs, files in os.walk(directory, topdown=True):
+        dirs[:] = [d for d in dirs if not should_ignore(os.path.relpath(os.path.join(root, d), directory), ignore_list)]
+        total_files_to_process += len(files)
+
+    if progress and task_id is not None:
+        progress.update(task_id, total=total_files_to_process)
+
     files_to_include = []
     skipped_files = []
     total_skipped_size = 0
     with open(log_file_path, 'w', encoding='utf-8') as log_file:
         for root, dirs, files in os.walk(directory, topdown=True):
-            filtered_dirs = []
-            for d in dirs:
-                full_path = os.path.join(root, d)
-                relative_path = os.path.relpath(full_path, directory)
-                if not should_ignore(relative_path, ignore_list):
-                    filtered_dirs.append(d)
-            dirs[:] = filtered_dirs
+            dirs[:] = [d for d in dirs if not should_ignore(os.path.relpath(os.path.join(root, d), directory), ignore_list)]
+
             for file in files:
                 file_path = os.path.join(root, file)
                 rel_path = os.path.relpath(file_path, directory)
-                file_size = os.path.getsize(file_path)
+
                 if not should_ignore(rel_path, ignore_list):
                     files_to_include.append(file_path)
                 else:
+                    file_size = os.path.getsize(file_path)
                     skipped_files.append(file_path)
-                    total_skipped_size += os.path.getsize(file_path)
+                    total_skipped_size += file_size
                     log_file.write(f"Skipped: {file_path} Size: {file_size} \n")
+
+                if progress and task_id is not None:
+                    progress.update(task_id, advance=1)
+
             log_file.write(f"Processed directory: {root} \n")
+
     return files_to_include, skipped_files, total_skipped_size

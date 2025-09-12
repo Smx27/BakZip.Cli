@@ -1,5 +1,6 @@
 pyzipper
-tqdm
 setuptools
 pyfiglet
 pytest
+rich
+requests
