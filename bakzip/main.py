@@ -23,6 +23,43 @@ from bakzip.services.tar_service import create_tar
 from bakzip.services.remote.github import GitHubStorage
 from bakzip.services.remote.google_drive import GoogleDriveStorage
 
+DEFAULT_IGNORE_CONTENT = """\
+# Default .bakzipignore file
+# Add files and directories to exclude from the backup.
+# Supports standard .gitignore patterns.
+
+# General
+*.log
+*.tmp
+*.swp
+*~
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+env/
+
+# Node.js
+node_modules/
+npm-debug.log*
+
+# OS specific
+.DS_Store
+Thumbs.db
+"""
+
+def generate_ignore_file():
+    """Creates a default .bakzipignore file in the current directory."""
+    if os.path.exists(".bakzipignore"):
+        print("'.bakzipignore' file already exists.")
+        return
+    with open(".bakzipignore", "w") as f:
+        f.write(DEFAULT_IGNORE_CONTENT)
+    print("Default '.bakzipignore' file created.")
+
 def main():
     """
     Main function for the BakZIP CLI application.
@@ -43,9 +80,14 @@ def main():
     title = Text("BakZIP", style="bold magenta", justify="center")
     subtitle = Text("by @smx27", style="bold cyan", justify="center")
     banner = Panel(Text.assemble(title, "\n", subtitle), title="Welcome", border_style="green")
-    console.print(banner)
 
     args = parse_arguments()
+
+    if args.generate_ignore:
+        generate_ignore_file()
+        return
+
+    console.print(banner)
     directory = args.directory
     if not directory:
         while True:
@@ -98,7 +140,9 @@ def main():
             transient=True,
         ) as progress:
             processing_task = progress.add_task("[bold green]Processing files...", total=None)
-            files_to_include, skipped_files, total_skipped_size = process_directory(directory, log_file_path, progress, processing_task)
+            files_to_include, skipped_files, total_skipped_size = process_directory(
+                directory, log_file_path, progress, processing_task, args.ignore_file
+            )
 
             zipping_task = progress.add_task("[bold green]Creating backup archive...", total=None)
             if args.format == 'zip':

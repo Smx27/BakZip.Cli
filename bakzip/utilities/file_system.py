@@ -7,18 +7,22 @@ import os
 import fnmatch
 
 
-def get_ignore_list():
+def get_ignore_list(directory, ignore_filepath=None):
     """
     Returns a list of ignore patterns from a .bakzipignore file.
 
     Args:
         directory: The directory to search for the .bakzipignore file.
+        ignore_filepath: A path to a custom ignore file.
 
     Returns:
         A list of ignore patterns.
     """
     ignore_list = []
-    ignore_file = './.bakzipignore'
+    if ignore_filepath:
+        ignore_file = ignore_filepath
+    else:
+        ignore_file = os.path.join(directory, '.bakzipignore')
     if os.path.exists(ignore_file):
         with open(ignore_file, 'r', encoding='utf-8') as f:
             for line in f:
@@ -53,7 +57,7 @@ def should_ignore(path, ignore_list):
     return False
 
 
-def process_directory(directory, log_file_path, progress=None, task_id=None):
+def process_directory(directory, log_file_path, progress=None, task_id=None, ignore_filepath=None):
     """
     Processes a directory, filtering files based on a .bakzipignore file.
 
@@ -62,6 +66,7 @@ def process_directory(directory, log_file_path, progress=None, task_id=None):
         log_file_path: The path to the log file.
         progress: A rich.progress.Progress object.
         task_id: The ID of the task in the progress bar.
+        ignore_filepath: A path to a custom ignore file.
 
     Returns:
         A tuple containing:
@@ -69,13 +74,16 @@ def process_directory(directory, log_file_path, progress=None, task_id=None):
             - A list of skipped files.
             - The total size of skipped files.
     """
-    ignore_list = get_ignore_list()
+    ignore_list = get_ignore_list(directory, ignore_filepath)
 
     # First pass: count files for accurate progress bar
     total_files_to_process = 0
     for root, dirs, files in os.walk(directory, topdown=True):
         dirs[:] = [d for d in dirs if not should_ignore(os.path.relpath(os.path.join(root, d), directory), ignore_list)]
-        total_files_to_process += len(files)
+        for file in files:
+            rel_path = os.path.relpath(os.path.join(root, file), directory)
+            if not should_ignore(rel_path, ignore_list):
+                total_files_to_process += 1
 
     if progress and task_id is not None:
         progress.update(task_id, total=total_files_to_process)

@@ -19,20 +19,15 @@ def create_zip(files, output, password=None, compression='normal'):
         compression (str, optional): The compression level to use. Defaults to 'normal'.
             Supported values: 'none', 'fast', 'normal', 'maximum'.
     """
-    compression_method = pyzipper.ZIP_DEFLATED
-    compresslevel = None
+    compression_map = {
+        'none': pyzipper.ZIP_STORED,
+        'fast': pyzipper.ZIP_LZMA,
+        'normal': pyzipper.ZIP_DEFLATED,
+        'maximum': pyzipper.ZIP_BZIP2
+    }
+    compression_method = compression_map.get(compression, pyzipper.ZIP_DEFLATED)
 
-    if compression == 'none':
-        compression_method = pyzipper.ZIP_STORED
-        compresslevel = None
-    elif compression == 'fast':
-        compresslevel = 1
-    elif compression == 'normal':
-        compresslevel = None # Use pyzipper's default for normal
-    elif compression == 'maximum':
-        compresslevel = 9
-
-    with pyzipper.AESZipFile(output, 'w', compression=compression_method, compresslevel=compresslevel) as zip_file:
+    with pyzipper.AESZipFile(output, 'w', compression=compression_method) as zip_file:
         if password:
             zip_file.setpassword(password.encode())
             zip_file.setencryption(pyzipper.WZ_AES)

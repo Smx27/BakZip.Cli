@@ -11,4 +11,6 @@ def parse_arguments():
     parser.add_argument('-f','--format', type=str, choices=['zip', 'tar', 'gz'], help='The backup format', default='zip')
     parser.add_argument('-v','--verbose', action='store_true', help='Enable verbose logging')
     parser.add_argument('--remote', type=str, choices=['github', 'google_drive'], help='The remote storage provider to use.', default=None)
+    parser.add_argument('--ignore-file', type=str, help='Path to a custom ignore file.', default=None)
+    parser.add_argument('--generate-ignore', action='store_true', help='Generate a default .bakzipignore file and exit.')
     return parser.parse_args()

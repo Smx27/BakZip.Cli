@@ -18,7 +18,7 @@ BakZip is a powerful and easy-to-use command-line interface (CLI) tool designed 
 - **Remote Offloading**: Automatically upload your completed backup to a remote storage provider.
     - **GitHub**: Upload your backup as a release asset to a specified GitHub repository.
 - **Password Protection**: Secure your ZIP archives with a password using AES encryption.
-- **Exclude Files**: Use a `.bakzipignore` file in your project root to specify files and directories to exclude from the backup, similar to `.gitignore`.
+- **Exclude Files**: Use a `.bakzipignore` file to specify files and directories to exclude. You can generate a default ignore file with `bakzip --generate-ignore` or use a custom one with `--ignore-file`.
 - **Verbose Logging**: Get detailed information about the backup process, including skipped files and sizes.
 
 ## Installation
@@ -56,6 +56,8 @@ bakzip [DIRECTORY] [OPTIONS]
 
 If you don't provide a directory, BakZip will prompt you to enter one.
 
+> **Note for previous users:** In older versions, you might have run the application with `python main.py`. After installing the package with `pip install -e .`, the tool is now available as a command-line application that you can run directly as `bakzip` from any directory.
+
 ### Arguments
 
 -   `directory`: The directory to be backed up (positional argument). If not provided, you will be prompted for it.
@@ -70,6 +72,8 @@ If you don't provide a directory, BakZip will prompt you to enter one.
     -   Choices: `zip`, `tar`. Default: `zip`.
 -   `--remote`: The remote storage provider to upload to.
     -   Choices: `github`, `google_drive` (Google Drive not yet implemented).
+-   `--ignore-file`: Path to a custom ignore file (e.g., `/path/to/.myignore`).
+-   `--generate-ignore`: Generate a default `.bakzipignore` file in the current directory and exit.
 -   `-v, --verbose`: Enable verbose logging (optional).
 
 ### Examples
@@ -97,6 +101,17 @@ bakzip /path/to/my/project -f zip --compression maximum -p "my-secret-password"
 ```bash
 bakzip /path/to/my/project --remote github
 ```
+
+**5. Generate a default `.bakzipignore` file:**
+```bash
+bakzip --generate-ignore
+```
+
+**6. Use a custom ignore file for your backup:**
+```bash
+bakzip /path/to/my/project --ignore-file /path/to/my/custom.ignore
+```
+
 > **Note:** When using `--remote github` for the first time, you will be prompted to enter your GitHub username, the repository (`owner/repo`), and a Personal Access Token (PAT) with `repo` scope.
 
 ## Contributing
