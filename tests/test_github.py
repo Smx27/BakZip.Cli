@@ -1,3 +1,4 @@
+import requests
 import pytest
 from unittest.mock import patch, MagicMock
 from bakzip.services.remote.github import GitHubStorage

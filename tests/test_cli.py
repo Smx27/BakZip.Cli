@@ -15,17 +15,13 @@ def temp_directory_for_processing(tmpdir):
     test_dir.mkdir("subdir").join("file2.txt").write("content2")
     test_dir.join("file_to_ignore.log").write("log content")
 
-    # Create a .bakzipignore file in the root of the temp dir
-    # Note: process_directory looks for this file in the CWD, so we create it there.
-    # This is a weakness in the current implementation of get_ignore_list.
-    # For the test to work, we must create it in the root of the test run.
-    ignore_file = tmpdir.join(".bakzipignore")
-    ignore_file.write("*.log\n")
+    # Create a .bakzipignore file in the test directory being processed
+    ignore_file = test_dir.join(".bakzipignore")
+    ignore_file.write("*.log\n.bakzipignore\n")
 
     yield str(test_dir)
 
     shutil.rmtree(str(test_dir))
-    os.remove(str(ignore_file))
 
 
 @pytest.fixture
@@ -50,8 +46,9 @@ def test_process_directory(temp_directory_for_processing):
     assert any("file1.txt" in f for f in files_to_include)
     assert any("file2.txt" in f for f in files_to_include)
 
-    assert len(skipped_files) == 1
+    assert len(skipped_files) == 2
     assert any("file_to_ignore.log" in f for f in skipped_files)
+    assert any(".bakzipignore" in f for f in skipped_files)
     assert total_skipped_size > 0
 
 

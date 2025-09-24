@@ -27,19 +27,19 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -e .
           pip install pytest-cov black flake8
 
       - name: Run tests
         run: |
-          PYTHONPATH=. pytest --cov=bakzip --cov-report=term-missing
-          coverage report -m
+          python -m pytest --cov=bakzip --cov-report=term-missing
+          python -m coverage report -m
 
       - name: Check code formatting
-        run: black . --check
+        run: black bakzip tests --check
 
       - name: Run linting
-        run: flake8 .
+        run: flake8 bakzip tests --exclude=venv,__pycache__,.git
 
       - name: Cache dependencies
         uses: actions/cache@v3
