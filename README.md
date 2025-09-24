@@ -121,6 +121,34 @@ bakzip /path/to/my/project --copy-to /path/to/my/destination
 
 > **Note:** When using `--remote github` for the first time, you will be prompted to enter your GitHub username, the repository (`owner/repo`), and a Personal Access Token (PAT) with `repo` scope.
 
+### Advanced Examples
+
+Here are some examples of how to combine the features for more complex workflows.
+
+**1. Create a `tar.xz` archive and upload it to GitHub:**
+
+This command will back up the specified directory, compress it using the `xz` algorithm (which is slow but provides a high compression ratio), name the output file `my-app-backup`, and then upload it as a release asset to your configured GitHub repository.
+
+```bash
+bakzip /path/to/my/app -f tar --tar-compression xz -o my-app-backup --remote github
+```
+
+**2. Perform a filtered copy to a backup folder, using a custom ignore file:**
+
+This is useful for creating a clean, local copy of your project for testing or deployment, without creating an archive.
+
+```bash
+bakzip . --copy-to ./my-project-clean-copy --ignore-file ./.production.ignore
+```
+
+**3. Create a verbose, password-protected zip backup with maximum compression:**
+
+This command will provide detailed output of the files being processed, use the strongest (but slowest) zip compression algorithm, and protect the final archive with a password.
+
+```bash
+bakzip /path/to/your/files -f zip --compression maximum -p "your-secret-password" -v
+```
+
 ## Contributing
 
 Contributions are welcome! Please open an issue or submit a pull request.
