@@ -19,6 +19,7 @@ BakZip is a powerful and easy-to-use command-line interface (CLI) tool designed 
     - **GitHub**: Upload your backup as a release asset to a specified GitHub repository.
 - **Password Protection**: Secure your ZIP archives with a password using AES encryption.
 - **Exclude Files**: Use a `.bakzipignore` file to specify files and directories to exclude. You can generate a default ignore file with `bakzip --generate-ignore` or use a custom one with `--ignore-file`.
+- **Filtered Local Copy**: Instead of creating an archive, you can copy the directory contents to another local destination, respecting the ignore rules.
 - **Verbose Logging**: Get detailed information about the backup process, including skipped files and sizes.
 
 ## Installation
@@ -74,6 +75,7 @@ If you don't provide a directory, BakZip will prompt you to enter one.
     -   Choices: `github`, `google_drive` (Google Drive not yet implemented).
 -   `--ignore-file`: Path to a custom ignore file (e.g., `/path/to/.myignore`).
 -   `--generate-ignore`: Generate a default `.bakzipignore` file in the current directory and exit.
+-   `--copy-to`: Perform a filtered copy to a local directory instead of creating an archive.
 -   `-v, --verbose`: Enable verbose logging (optional).
 
 ### Examples
@@ -110,6 +112,11 @@ bakzip --generate-ignore
 **6. Use a custom ignore file for your backup:**
 ```bash
 bakzip /path/to/my/project --ignore-file /path/to/my/custom.ignore
+```
+
+**7. Copy a directory to another location, ignoring files:**
+```bash
+bakzip /path/to/my/project --copy-to /path/to/my/destination
 ```
 
 > **Note:** When using `--remote github` for the first time, you will be prompted to enter your GitHub username, the repository (`owner/repo`), and a Personal Access Token (PAT) with `repo` scope.

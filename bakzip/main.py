@@ -9,6 +9,7 @@ This module handles the core logic of the BakZIP CLI application, including:
 - Providing feedback to the user on the backup process.
 """
 import os
+import shutil
 import time
 from rich.console import Console
 from rich.panel import Panel
@@ -22,6 +23,20 @@ from bakzip.services.zip_service import create_zip
 from bakzip.services.tar_service import create_tar
 from bakzip.services.remote.github import GitHubStorage
 from bakzip.services.remote.google_drive import GoogleDriveStorage
+
+def perform_filtered_copy(source_dir, dest_dir, files_to_copy, progress):
+    """Copies a list of files from a source to a destination, preserving structure."""
+    copy_task = progress.add_task("[bold blue]Copying files...", total=len(files_to_copy))
+
+    for src_path in files_to_copy:
+        rel_path = os.path.relpath(src_path, source_dir)
+        dest_path = os.path.join(dest_dir, rel_path)
+
+        # Create destination subdirectory if it doesn't exist
+        os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+
+        shutil.copy2(src_path, dest_path)
+        progress.update(copy_task, advance=1)
 
 DEFAULT_IGNORE_CONTENT = """\
 # Default .bakzipignore file
@@ -129,6 +144,26 @@ def main():
         console.print(Panel(verbose_table, border_style="blue"))
 
     try:
+        if args.copy_to:
+            with Progress(
+                "[progress.description]{task.description}",
+                "[progress.percentage]{task.percentage:>3.0f}%",
+                "[progress.bar]{task.bar}",
+                "{task.completed} of {task.total} files",
+                "Elapsed: [progress.elapsed]",
+                "ETA: [progress.remaining]",
+                console=console,
+                transient=True,
+            ) as progress:
+                processing_task = progress.add_task("[bold green]Scanning files...", total=None)
+                files_to_include, _, _ = process_directory(
+                    directory, log_file_path, progress, processing_task, args.ignore_file
+                )
+                perform_filtered_copy(directory, args.copy_to, files_to_include, progress)
+
+            console.print(Panel(f"[bold green]Successfully copied {len(files_to_include)} files to {args.copy_to}[/bold green]", border_style="green"))
+            return
+
         with Progress(
             "[progress.description]{task.description}",
             "[progress.percentage]{task.percentage:>3.0f}%",

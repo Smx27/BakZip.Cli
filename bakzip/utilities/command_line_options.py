@@ -13,4 +13,5 @@ def parse_arguments():
     parser.add_argument('--remote', type=str, choices=['github', 'google_drive'], help='The remote storage provider to use.', default=None)
     parser.add_argument('--ignore-file', type=str, help='Path to a custom ignore file.', default=None)
     parser.add_argument('--generate-ignore', action='store_true', help='Generate a default .bakzipignore file and exit.')
+    parser.add_argument('--copy-to', type=str, help='Perform a filtered copy to a local directory instead of creating an archive.', default=None)
     return parser.parse_args()
