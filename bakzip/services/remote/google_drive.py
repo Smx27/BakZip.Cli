@@ -1,5 +1,6 @@
 from .base import RemoteStorage
 
+
 class GoogleDriveStorage(RemoteStorage):
     """A remote storage provider for Google Drive."""
 

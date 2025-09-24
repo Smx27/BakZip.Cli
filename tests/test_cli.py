@@ -5,6 +5,7 @@ from bakzip.utilities.file_system import process_directory
 from bakzip.services.zip_service import create_zip
 from bakzip.services.tar_service import create_tar
 
+
 @pytest.fixture
 def temp_directory_for_processing(tmpdir):
     """
@@ -40,7 +41,9 @@ def test_process_directory(temp_directory_for_processing):
     """
     Test the directory processing with subdirectories and ignore files.
     """
-    files_to_include, skipped_files, total_skipped_size = process_directory(temp_directory_for_processing, "bakzip.log", None, None)
+    files_to_include, skipped_files, total_skipped_size = process_directory(
+        temp_directory_for_processing, "bakzip.log", None, None
+    )
 
     assert len(files_to_include) == 2
     assert any("file1.txt" in f for f in files_to_include)
@@ -52,7 +55,7 @@ def test_process_directory(temp_directory_for_processing):
     assert total_skipped_size > 0
 
 
-@pytest.mark.parametrize("compression_level", ['none', 'fast', 'normal', 'maximum'])
+@pytest.mark.parametrize("compression_level", ["none", "fast", "normal", "maximum"])
 def test_create_zip(temp_directory_for_archiving, compression_level):
     """
     Test the ZIP file creation with different compression levels.
@@ -64,12 +67,10 @@ def test_create_zip(temp_directory_for_archiving, compression_level):
     os.remove(output_file)
 
 
-@pytest.mark.parametrize("compression_type, extension", [
-    ('none', '.tar'),
-    ('gz', '.tar.gz'),
-    ('bz2', '.tar.bz2'),
-    ('xz', '.tar.xz')
-])
+@pytest.mark.parametrize(
+    "compression_type, extension",
+    [("none", ".tar"), ("gz", ".tar.gz"), ("bz2", ".tar.bz2"), ("xz", ".tar.xz")],
+)
 def test_create_tar(temp_directory_for_archiving, compression_type, extension):
     """
     Test the TAR file creation with different compression types.

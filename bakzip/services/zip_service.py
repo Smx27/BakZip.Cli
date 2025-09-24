@@ -8,7 +8,8 @@ with optional compression and encryption using pyzipper.
 import os
 import pyzipper
 
-def create_zip(files, output, password=None, compression='normal'):
+
+def create_zip(files, output, password=None, compression="normal"):
     """
     Creates a ZIP archive from a list of files.
 
@@ -20,14 +21,14 @@ def create_zip(files, output, password=None, compression='normal'):
             Supported values: 'none', 'fast', 'normal', 'maximum'.
     """
     compression_map = {
-        'none': pyzipper.ZIP_STORED,
-        'fast': pyzipper.ZIP_LZMA,
-        'normal': pyzipper.ZIP_DEFLATED,
-        'maximum': pyzipper.ZIP_BZIP2
+        "none": pyzipper.ZIP_STORED,
+        "fast": pyzipper.ZIP_LZMA,
+        "normal": pyzipper.ZIP_DEFLATED,
+        "maximum": pyzipper.ZIP_BZIP2,
     }
     compression_method = compression_map.get(compression, pyzipper.ZIP_DEFLATED)
 
-    with pyzipper.AESZipFile(output, 'w', compression=compression_method) as zip_file:
+    with pyzipper.AESZipFile(output, "w", compression=compression_method) as zip_file:
         if password:
             zip_file.setpassword(password.encode())
             zip_file.setencryption(pyzipper.WZ_AES)
@@ -48,6 +49,7 @@ def create_zip(files, output, password=None, compression='normal'):
             except OSError as e:
                 print(f"Error adding {file} to zip file: {e}")
 
+
 if __name__ == "__main__":
     # Example usage
     if not os.path.exists("test_dir"):
@@ -57,5 +59,7 @@ if __name__ == "__main__":
     with open("test_dir/test2.txt", "w") as f:
         f.write("This is another test file.")
 
-    create_zip(["test_dir/test1.txt", "test_dir/test2.txt"], "test.zip", "password", "maximum")
+    create_zip(
+        ["test_dir/test1.txt", "test_dir/test2.txt"], "test.zip", "password", "maximum"
+    )
     print("Created test.zip")

@@ -8,7 +8,8 @@ with optional compression.
 import tarfile
 import os
 
-def create_tar(files, output, compression='gz'):
+
+def create_tar(files, output, compression="gz"):
     """
     Creates a TAR archive from a list of files.
 
@@ -18,7 +19,7 @@ def create_tar(files, output, compression='gz'):
         compression (str, optional): The compression method to use. Defaults to 'gz'.
             Supported values: 'none', 'gz' (gzip), 'bz2', 'xz'.
     """
-    mode = f"w:{compression}" if compression != 'none' else 'w'
+    mode = f"w:{compression}" if compression != "none" else "w"
 
     with tarfile.open(output, mode) as tar:
         for file in files:
@@ -33,6 +34,7 @@ def create_tar(files, output, compression='gz'):
                 tar.add(file, arcname=arcname)
             except OSError as e:
                 print(f"Error adding {file} to tar file: {e}")
+
 
 if __name__ == "__main__":
     # Example usage

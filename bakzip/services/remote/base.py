@@ -1,5 +1,6 @@
 import abc
 
+
 class RemoteStorage(abc.ABC):
     """Abstract base class for remote storage providers."""
 

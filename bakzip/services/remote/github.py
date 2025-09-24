@@ -5,6 +5,7 @@ from rich.prompt import Prompt
 from rich.console import Console
 from .base import RemoteStorage
 
+
 class GitHubStorage(RemoteStorage):
     """A remote storage provider for GitHub."""
 
@@ -16,9 +17,16 @@ class GitHubStorage(RemoteStorage):
 
     def configure(self):
         """Configure the GitHub storage provider."""
-        self.username = Prompt.ask("[bold yellow]Enter your GitHub username[/bold yellow]")
-        self.repo = Prompt.ask("[bold yellow]Enter the repository (owner/repo)[/bold yellow]")
-        self.token = Prompt.ask("[bold yellow]Enter your GitHub Personal Access Token[/bold yellow]", password=True)
+        self.username = Prompt.ask(
+            "[bold yellow]Enter your GitHub username[/bold yellow]"
+        )
+        self.repo = Prompt.ask(
+            "[bold yellow]Enter the repository (owner/repo)[/bold yellow]"
+        )
+        self.token = Prompt.ask(
+            "[bold yellow]Enter your GitHub Personal Access Token[/bold yellow]",
+            password=True,
+        )
 
     def upload(self, filepath: str):
         """
@@ -66,12 +74,18 @@ class GitHubStorage(RemoteStorage):
 
             upload_url_with_name = f"{upload_url}?name={os.path.basename(filepath)}"
 
-            response = requests.post(upload_url_with_name, headers=upload_headers, data=file_data)
+            response = requests.post(
+                upload_url_with_name, headers=upload_headers, data=file_data
+            )
             response.raise_for_status()
 
-            self.console.print(f"[bold green]Successfully uploaded {filepath} to GitHub release {release_name}[/bold green]")
+            self.console.print(
+                f"[bold green]Successfully uploaded {filepath} to GitHub release {release_name}[/bold green]"
+            )
 
         except requests.exceptions.RequestException as e:
-            self.console.print(f"[bold red]An error occurred while uploading to GitHub: {e}[/bold red]")
+            self.console.print(
+                f"[bold red]An error occurred while uploading to GitHub: {e}[/bold red]"
+            )
             if e.response:
                 self.console.print(f"[bold red]Response: {e.response.text}[/bold red]")

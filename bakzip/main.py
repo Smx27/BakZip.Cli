@@ -24,9 +24,12 @@ from bakzip.services.tar_service import create_tar
 from bakzip.services.remote.github import GitHubStorage
 from bakzip.services.remote.google_drive import GoogleDriveStorage
 
+
 def perform_filtered_copy(source_dir, dest_dir, files_to_copy, progress):
     """Copies a list of files from a source to a destination, preserving structure."""
-    copy_task = progress.add_task("[bold blue]Copying files...", total=len(files_to_copy))
+    copy_task = progress.add_task(
+        "[bold blue]Copying files...", total=len(files_to_copy)
+    )
 
     for src_path in files_to_copy:
         rel_path = os.path.relpath(src_path, source_dir)
@@ -37,6 +40,7 @@ def perform_filtered_copy(source_dir, dest_dir, files_to_copy, progress):
 
         shutil.copy2(src_path, dest_path)
         progress.update(copy_task, advance=1)
+
 
 DEFAULT_IGNORE_CONTENT = """\
 # Default .bakzipignore file
@@ -66,6 +70,7 @@ npm-debug.log*
 Thumbs.db
 """
 
+
 def generate_ignore_file():
     """Creates a default .bakzipignore file in the current directory."""
     if os.path.exists(".bakzipignore"):
@@ -74,6 +79,7 @@ def generate_ignore_file():
     with open(".bakzipignore", "w") as f:
         f.write(DEFAULT_IGNORE_CONTENT)
     print("Default '.bakzipignore' file created.")
+
 
 def main():
     """
@@ -94,7 +100,9 @@ def main():
     # Banner
     title = Text("BakZIP", style="bold magenta", justify="center")
     subtitle = Text("by @smx27", style="bold cyan", justify="center")
-    banner = Panel(Text.assemble(title, "\n", subtitle), title="Welcome", border_style="green")
+    banner = Panel(
+        Text.assemble(title, "\n", subtitle), title="Welcome", border_style="green"
+    )
 
     args = parse_arguments()
 
@@ -106,18 +114,22 @@ def main():
     directory = args.directory
     if not directory:
         while True:
-            directory = Prompt.ask("[bold yellow]Enter the directory to back up[/bold yellow]")
+            directory = Prompt.ask(
+                "[bold yellow]Enter the directory to back up[/bold yellow]"
+            )
             if os.path.isdir(directory):
                 break
             else:
-                console.print("[bold red]Invalid directory. Please try again.[/bold red]")
+                console.print(
+                    "[bold red]Invalid directory. Please try again.[/bold red]"
+                )
 
-    output = args.output or f'backup_{os.path.basename(directory)}'
-    if args.format == 'zip':
-        output += '.zip'
-    elif args.format == 'tar':
-        output += '.tar'
-        if args.tar_compression != 'none':
+    output = args.output or f"backup_{os.path.basename(directory)}"
+    if args.format == "zip":
+        output += ".zip"
+    elif args.format == "tar":
+        output += ".tar"
+        if args.tar_compression != "none":
             output += f".{args.tar_compression}"
     else:
         console.print("[bold red]Error: Unsupported format specified.[/bold red]")
@@ -125,7 +137,7 @@ def main():
 
     password = args.password
     verbose = args.verbose
-    log_file_path = os.path.join(os.path.dirname(output) or '.', 'bakzip.log')
+    log_file_path = os.path.join(os.path.dirname(output) or ".", "bakzip.log")
 
     start_time = time.time()
 
@@ -133,11 +145,15 @@ def main():
         verbose_table = Table(title="Backup Configuration", show_header=False, box=None)
         verbose_table.add_row("Processing directory:", f"[cyan]{directory}[/cyan]")
         verbose_table.add_row("Output file:", f"[cyan]{output}[/cyan]")
-        verbose_table.add_row("Password:", "[cyan]Yes[/cyan]" if password else "[cyan]No[/cyan]")
-        if args.format == 'zip':
+        verbose_table.add_row(
+            "Password:", "[cyan]Yes[/cyan]" if password else "[cyan]No[/cyan]"
+        )
+        if args.format == "zip":
             verbose_table.add_row("Compression:", f"[cyan]{args.compression}[/cyan]")
-        elif args.format == 'tar':
-            verbose_table.add_row("Tar Compression:", f"[cyan]{args.tar_compression}[/cyan]")
+        elif args.format == "tar":
+            verbose_table.add_row(
+                "Tar Compression:", f"[cyan]{args.tar_compression}[/cyan]"
+            )
         verbose_table.add_row("Encryption:", f"[cyan]{args.encryption}[/cyan]")
         verbose_table.add_row("Format:", f"[cyan]{args.format}[/cyan]")
         verbose_table.add_row("Log file:", f"[cyan]{log_file_path}[/cyan]")
@@ -155,13 +171,26 @@ def main():
                 console=console,
                 transient=True,
             ) as progress:
-                processing_task = progress.add_task("[bold green]Scanning files...", total=None)
-                files_to_include, _, _ = process_directory(
-                    directory, log_file_path, progress, processing_task, args.ignore_file
+                processing_task = progress.add_task(
+                    "[bold green]Scanning files...", total=None
                 )
-                perform_filtered_copy(directory, args.copy_to, files_to_include, progress)
+                files_to_include, _, _ = process_directory(
+                    directory,
+                    log_file_path,
+                    progress,
+                    processing_task,
+                    args.ignore_file,
+                )
+                perform_filtered_copy(
+                    directory, args.copy_to, files_to_include, progress
+                )
 
-            console.print(Panel(f"[bold green]Successfully copied {len(files_to_include)} files to {args.copy_to}[/bold green]", border_style="green"))
+            console.print(
+                Panel(
+                    f"[bold green]Successfully copied {len(files_to_include)} files to {args.copy_to}[/bold green]",
+                    border_style="green",
+                )
+            )
             return
 
         with Progress(
@@ -174,24 +203,30 @@ def main():
             console=console,
             transient=True,
         ) as progress:
-            processing_task = progress.add_task("[bold green]Processing files...", total=None)
+            processing_task = progress.add_task(
+                "[bold green]Processing files...", total=None
+            )
             files_to_include, skipped_files, total_skipped_size = process_directory(
                 directory, log_file_path, progress, processing_task, args.ignore_file
             )
 
-            zipping_task = progress.add_task("[bold green]Creating backup archive...", total=None)
-            if args.format == 'zip':
+            zipping_task = progress.add_task(
+                "[bold green]Creating backup archive...", total=None
+            )
+            if args.format == "zip":
                 create_zip(files_to_include, output, password, args.compression)
-            elif args.format == 'tar':
+            elif args.format == "tar":
                 create_tar(files_to_include, output, args.tar_compression)
             progress.update(zipping_task, completed=1, total=1)
 
             if args.remote:
-                upload_task = progress.add_task(f"[bold blue]Uploading to {args.remote}...", total=None)
+                upload_task = progress.add_task(
+                    f"[bold blue]Uploading to {args.remote}...", total=None
+                )
                 remote_storage = None
-                if args.remote == 'github':
+                if args.remote == "github":
                     remote_storage = GitHubStorage()
-                elif args.remote == 'google_drive':
+                elif args.remote == "google_drive":
                     remote_storage = GoogleDriveStorage()
 
                 if remote_storage:
@@ -205,10 +240,17 @@ def main():
         total_files = len(files_to_include)
         total_skipped_files = len(skipped_files)
 
-        console.print(Panel("[bold green]Backup completed successfully![/bold green]", border_style="green"))
+        console.print(
+            Panel(
+                "[bold green]Backup completed successfully![/bold green]",
+                border_style="green",
+            )
+        )
 
         summary_table = Table(title="Backup Summary")
-        summary_table.add_column("Statistic", justify="right", style="cyan", no_wrap=True)
+        summary_table.add_column(
+            "Statistic", justify="right", style="cyan", no_wrap=True
+        )
         summary_table.add_column("Value", style="magenta")
 
         summary_table.add_row("Output File", output)
@@ -226,5 +268,5 @@ def main():
         console.print_exception(show_locals=True)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

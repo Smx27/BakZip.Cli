@@ -3,6 +3,7 @@ This module provides functions for processing directories, including
 filtering files based on a .bakzipignore file and identifying files to
 include in a backup.
 """
+
 import os
 import fnmatch
 
@@ -22,20 +23,24 @@ def get_ignore_list(directory, ignore_filepath=None):
     if ignore_filepath:
         ignore_file = ignore_filepath
     else:
-        ignore_file = os.path.join(directory, '.bakzipignore')
+        ignore_file = os.path.join(directory, ".bakzipignore")
     if os.path.exists(ignore_file):
-        with open(ignore_file, 'r', encoding='utf-8') as f:
+        with open(ignore_file, "r", encoding="utf-8") as f:
             for line in f:
                 line = line.strip()
                 # Ignore comments and empty lines
-                if line and not line.startswith('#'):
+                if line and not line.startswith("#"):
                     ignore_list.append(line)
-                    if line.endswith('/'):
-                        if not line.startswith('*/') and not line.startswith('/'):
-                            ignore_list.extend([line + '*', '*/' + line, '*/' + line + '*'])
+                    if line.endswith("/"):
+                        if not line.startswith("*/") and not line.startswith("/"):
+                            ignore_list.extend(
+                                [line + "*", "*/" + line, "*/" + line + "*"]
+                            )
 
-                    if '.' not in line and not line.endswith('/'):
-                        ignore_list.extend([line + '/', line + '/*', '*/' + line, '*/' + line + '/*'])
+                    if "." not in line and not line.endswith("/"):
+                        ignore_list.extend(
+                            [line + "/", line + "/*", "*/" + line, "*/" + line + "/*"]
+                        )
 
     return ignore_list
 
@@ -57,7 +62,9 @@ def should_ignore(path, ignore_list):
     return False
 
 
-def process_directory(directory, log_file_path, progress=None, task_id=None, ignore_filepath=None):
+def process_directory(
+    directory, log_file_path, progress=None, task_id=None, ignore_filepath=None
+):
     """
     Processes a directory, filtering files based on a .bakzipignore file.
 
@@ -79,7 +86,13 @@ def process_directory(directory, log_file_path, progress=None, task_id=None, ign
     # First pass: count files for accurate progress bar
     total_files_to_process = 0
     for root, dirs, files in os.walk(directory, topdown=True):
-        dirs[:] = [d for d in dirs if not should_ignore(os.path.relpath(os.path.join(root, d), directory), ignore_list)]
+        dirs[:] = [
+            d
+            for d in dirs
+            if not should_ignore(
+                os.path.relpath(os.path.join(root, d), directory), ignore_list
+            )
+        ]
         for file in files:
             rel_path = os.path.relpath(os.path.join(root, file), directory)
             if not should_ignore(rel_path, ignore_list):
@@ -91,9 +104,15 @@ def process_directory(directory, log_file_path, progress=None, task_id=None, ign
     files_to_include = []
     skipped_files = []
     total_skipped_size = 0
-    with open(log_file_path, 'w', encoding='utf-8') as log_file:
+    with open(log_file_path, "w", encoding="utf-8") as log_file:
         for root, dirs, files in os.walk(directory, topdown=True):
-            dirs[:] = [d for d in dirs if not should_ignore(os.path.relpath(os.path.join(root, d), directory), ignore_list)]
+            dirs[:] = [
+                d
+                for d in dirs
+                if not should_ignore(
+                    os.path.relpath(os.path.join(root, d), directory), ignore_list
+                )
+            ]
 
             for file in files:
                 file_path = os.path.join(root, file)
