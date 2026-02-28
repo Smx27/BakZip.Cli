@@ -2,14 +2,14 @@
 """
 This module provides functions for creating ZIP archives.
 
-The `#! /usr/env/bin python` function allows you to create a TAR archive from a list of files,
-with optional compression using pyzipper.
+The `create_zip` function allows you to create a ZIP archive from a list of files,
+with optional compression and encryption using pyzipper.
 """
 import os
 import pyzipper
-from tqdm import tqdm
 
-def create_zip(files, output, password=None, compression='normal'):
+
+def create_zip(files, output, password=None, compression="normal"):
     """
     Creates a ZIP archive from a list of files.
 
@@ -18,25 +18,48 @@ def create_zip(files, output, password=None, compression='normal'):
         output (str): The path to the output ZIP file.
         password (str, optional): The password to encrypt the archive. Defaults to None.
         compression (str, optional): The compression level to use. Defaults to 'normal'.
-            Supported values: 'fast', 'normal', 'maximum'.
+            Supported values: 'none', 'fast', 'normal', 'maximum'.
     """
-    compression_level = {
-        'fast': pyzipper.ZIP_LZMA,
-        'normal': pyzipper.ZIP_DEFLATED,
-        'maximum': pyzipper.ZIP_BZIP2
-    }.get(compression, pyzipper.ZIP_DEFLATED)
+    compression_map = {
+        "none": pyzipper.ZIP_STORED,
+        "fast": pyzipper.ZIP_LZMA,
+        "normal": pyzipper.ZIP_DEFLATED,
+        "maximum": pyzipper.ZIP_BZIP2,
+    }
+    compression_method = compression_map.get(compression, pyzipper.ZIP_DEFLATED)
 
-    with pyzipper.AESZipFile(output, 'w', compression=compression_level) as zip_file:
+    with pyzipper.AESZipFile(output, "w", compression=compression_method) as zip_file:
         if password:
             zip_file.setpassword(password.encode())
             zip_file.setencryption(pyzipper.WZ_AES)
 
-        for file in tqdm(files, desc="Zipping files", unit="file"):
-            arcname = os.path.relpath(file, os.path.dirname(files[0]))
+        for file in files:
+            # Calculate a relative path for the file inside the zip.
+            # This avoids storing the full absolute path.
+            # We need a common base path to make this work reliably. If files are from all over,
+            # we just use the file's basename.
+            try:
+                common_path = os.path.dirname(os.path.commonpath(files))
+                arcname = os.path.relpath(file, common_path)
+            except ValueError:
+                arcname = os.path.basename(file)
+
             try:
                 zip_file.write(file, arcname)
             except OSError as e:
-                print(f"Error adding {file} to tar file: {e}")
+                print(f"Error adding {file} to zip file: {e}")
+
 
 if __name__ == "__main__":
-    create_zip(["test.txt"], "test.zip", "password", "normal")
+    # Example usage
+    if not os.path.exists("test_dir"):
+        os.makedirs("test_dir")
+    with open("test_dir/test1.txt", "w") as f:
+        f.write("This is a test file.")
+    with open("test_dir/test2.txt", "w") as f:
+        f.write("This is another test file.")
+
+    create_zip(
+        ["test_dir/test1.txt", "test_dir/test2.txt"], "test.zip", "password", "maximum"
+    )
+    print("Created test.zip")

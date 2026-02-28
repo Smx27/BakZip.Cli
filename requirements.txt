@@ -1,5 +1,8 @@
 pyzipper
-tqdm
 setuptools
 pyfiglet
 pytest
+rich
+requests
+google-auth
+google-api-python-client
