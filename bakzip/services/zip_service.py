@@ -31,12 +31,23 @@ def create_zip(files, output, password=None, compression='normal'):
             zip_file.setpassword(password.encode())
             zip_file.setencryption(pyzipper.WZ_AES)
 
+        if not files:
+            return
+
+        base_dir = os.path.dirname(files[0])
         for file in tqdm(files, desc="Zipping files", unit="file"):
-            arcname = os.path.relpath(file, os.path.dirname(files[0]))
+            arcname = os.path.relpath(file, base_dir)
+
+            # Security check: prevent path traversal by ensuring arcname
+            # is relative and stays within the intended archive structure.
+            if os.path.isabs(arcname) or ".." in arcname.split(os.path.sep):
+                print(f"Skipping {file}: potential path traversal in archive name '{arcname}'")
+                continue
+
             try:
                 zip_file.write(file, arcname)
             except OSError as e:
-                print(f"Error adding {file} to tar file: {e}")
+                print(f"Error adding {file} to ZIP file: {e}")
 
 if __name__ == "__main__":
     create_zip(["test.txt"], "test.zip", "password", "normal")
