@@ -11,6 +11,7 @@ This module handles the core logic of the BakZIP CLI application, including:
 import os
 import time
 import traceback
+import getpass
 import pyfiglet
 from bakzip.utilities.command_line_options import parse_arguments
 from bakzip.services.directory_processor import process_directory
@@ -35,6 +36,9 @@ def main():
     print(result)
     print('by @smx27 Github: @smx27')
     args = parse_arguments()
+    password = args.password
+    if password is True:
+        password = getpass.getpass("Enter password to protect the backup file: ")
     directory = args.directory
     output = args.output or f'backup_{os.path.basename(directory)}'
     if args.format == 'zip':
@@ -45,7 +49,6 @@ def main():
             output += '.gz'
     else:
         raise ValueError("Unsupported format")
-    password = args.password
     compression = args.compression
     verbose = args.verbose
     log_file_path = os.path.join(os.path.dirname(output), 'bakzip.log')
