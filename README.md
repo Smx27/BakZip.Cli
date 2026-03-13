@@ -43,18 +43,18 @@ pip install -e .
 This will install bakzip package in a way that allows you to make changes to the code and have them reflected immediately.
 Now, you can run your CLI tool from anywhere in your system by using the command 
 ```bash
-bakzip --directory /path/to/dir --output backup.zip --password mySecret123 --compression maximum --verbose
+bakzip --directory /path/to/dir --output backup.zip --password --compression maximum --verbose
 ```
 ## Usage
 Run the tool with the following command:
 ```bash
-python main.py --directory /path/to/dir --output backup.zip --password mySecret123 --compression maximum --verbose
+python main.py --directory /path/to/dir --output backup.zip --password --compression maximum --verbose
 ```
 
 ## Arguments:
 - --directory: The directory to be backed up (default: current directory).
 - --output: The name of the output backup file (default: backup_<directory_name>.<format>).
-- --password: The password to protect the backup file (optional).
+- --password: The password to protect the backup file (optional). If used without a value, you will be prompted securely.
 - --compression: The compression level (choices: fast, normal, maximum; default: normal).
 - --encryption: The encryption algorithm (choices: none, aes, rsa; default: none).
 - --format: The backup format (choices: zip, tar, gz; default: zip).
@@ -62,7 +62,7 @@ python main.py --directory /path/to/dir --output backup.zip --password mySecret1
 
 ### Example
 ```bash
-bakzip --directory /path/to/dir --output backup.zip --password mySecret123 --compression maximum --encryption aes --format zip --verbose
+bakzip --directory /path/to/dir --output backup.zip --password --compression maximum --encryption aes --format zip --verbose
 ```
 
 ### Notes
