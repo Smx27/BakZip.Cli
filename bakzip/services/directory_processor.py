@@ -83,12 +83,12 @@ def process_directory(directory, log_file_path):
             for file in files:
                 file_path = os.path.join(root, file)
                 rel_path = os.path.relpath(file_path, directory)
-                file_size = os.path.getsize(file_path)
                 if not should_ignore(rel_path, ignore_list):
                     files_to_include.append(file_path)
                 else:
+                    file_size = os.path.getsize(file_path)
                     skipped_files.append(file_path)
-                    total_skipped_size += os.path.getsize(file_path)
+                    total_skipped_size += file_size
                     log_file.write(f"Skipped: {file_path} Size: {file_size} \n")
             log_file.write(f"Processed directory: {root} \n")
     return files_to_include, skipped_files, total_skipped_size
