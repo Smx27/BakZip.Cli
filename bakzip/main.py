@@ -63,7 +63,7 @@ def main():
         print(f'Verbose: {verbose}')
         print(f'Log file: {log_file_path}')
     try:
-        files_to_include, skipped_files, total_skipped_size = process_directory(directory, log_file_path)
+        files_to_include, skipped_files, total_skipped_size = process_directory(directory, log_file_path, verbose=verbose)
         if args.format == 'zip':
             create_zip(files_to_include, output, password, compression)
         elif args.format == 'tar':
