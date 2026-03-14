@@ -65,9 +65,9 @@ def main():
     try:
         files_to_include, skipped_files, total_skipped_size = process_directory(directory, log_file_path, verbose=verbose)
         if args.format == 'zip':
-            create_zip(files_to_include, output, password, compression)
+            create_zip(files_to_include, output, password, compression, base_dir=directory)
         elif args.format == 'tar':
-            create_tar(files_to_include, output, compression)
+            create_tar(files_to_include, output, compression, base_dir=directory)
         else:
             raise ValueError("Unsupported format")
         end_time = time.time()
