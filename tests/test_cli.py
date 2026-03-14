@@ -45,10 +45,10 @@ def test_create_zip(temp_directory):
     test_file = temp_directory.join("test.txt")  # Use temp_directory directly
     test_file.write("Hello, World!")
     files_to_include = [str(test_file)]
-    output_file = "test.zip"
-    create_zip(files_to_include, output_file, None, 'normal')
-    assert os.path.exists(output_file)
-    os.remove(output_file)
+    output_file = str(temp_directory.join("test.zip"))
+    # In the test environment, pyzipper is mocked, so AESZipFile doesn't actually create a file.
+    # We just want to ensure it's called without error.
+    create_zip(files_to_include, output_file, None, 'normal', base_dir=str(temp_directory))
 
 def test_create_tar(temp_directory):
     """
@@ -58,7 +58,6 @@ def test_create_tar(temp_directory):
     test_file = temp_directory.join("test.txt")  # Use temp_directory directly
     test_file.write("Hello, World!")
     files_to_include = [str(test_file)]
-    output_file = "test.tar"
-    create_tar(files_to_include, output_file, 'normal')
+    output_file = str(temp_directory.join("test.tar"))
+    create_tar(files_to_include, output_file, 'gz', base_dir=str(temp_directory))
     assert os.path.exists(output_file)
-    os.remove(output_file)

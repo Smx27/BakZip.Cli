@@ -9,7 +9,7 @@ import os
 import pyzipper
 from tqdm import tqdm
 
-def create_zip(files, output, password=None, compression='normal'):
+def create_zip(files, output, password=None, compression='normal', base_dir=None):
     """
     Creates a ZIP archive from a list of files.
 
@@ -19,6 +19,8 @@ def create_zip(files, output, password=None, compression='normal'):
         password (str, optional): The password to encrypt the archive. Defaults to None.
         compression (str, optional): The compression level to use. Defaults to 'normal'.
             Supported values: 'fast', 'normal', 'maximum'.
+        base_dir (str, optional): The base directory for relative paths in the archive.
+            Defaults to the directory of the first file if not provided.
     """
     compression_level = {
         'fast': pyzipper.ZIP_LZMA,
@@ -26,13 +28,19 @@ def create_zip(files, output, password=None, compression='normal'):
         'maximum': pyzipper.ZIP_BZIP2
     }.get(compression, pyzipper.ZIP_DEFLATED)
 
+    if base_dir is None and files:
+        base_dir = os.path.dirname(files[0])
+
     with pyzipper.AESZipFile(output, 'w', compression=compression_level) as zip_file:
         if password:
             zip_file.setpassword(password.encode())
             zip_file.setencryption(pyzipper.WZ_AES)
 
         for file in tqdm(files, desc="Zipping files", unit="file"):
-            arcname = os.path.relpath(file, os.path.dirname(files[0]))
+            arcname = os.path.relpath(file, base_dir)
+            if ".." in arcname or os.path.isabs(arcname):
+                print(f"Security Warning: Skipping {file} due to potential path traversal (arcname: {arcname})")
+                continue
             try:
                 zip_file.write(file, arcname)
             except OSError as e:
