@@ -5,6 +5,22 @@ include in a backup.
 """
 import os
 import fnmatch
+import re
+import functools
+
+
+@functools.lru_cache(maxsize=1)
+def _get_compiled_regex(ignore_list_tuple):
+    """
+    Compiles a list of ignore patterns into a single regular expression.
+    Uses os.path.normcase to ensure platform-appropriate case sensitivity.
+    """
+    if not ignore_list_tuple:
+        return None
+    # fnmatch.fnmatch uses os.path.normcase internally.
+    # To emulate it, we normcase the patterns before translating.
+    regex_patterns = [fnmatch.translate(os.path.normcase(pattern)) for pattern in ignore_list_tuple]
+    return re.compile('|'.join(regex_patterns))
 
 
 def get_ignore_list():
@@ -47,9 +63,13 @@ def should_ignore(path, ignore_list):
     Returns:
         True if the path should be ignored, False otherwise.
     """
-    for pattern in ignore_list:
-        if fnmatch.fnmatch(path, pattern):
-            return True
+    if not ignore_list:
+        return False
+
+    compiled_regex = _get_compiled_regex(tuple(ignore_list))
+    if compiled_regex:
+        # We must normcase the path as well to match the normcased patterns.
+        return bool(compiled_regex.match(os.path.normcase(path)))
     return False
 
 
