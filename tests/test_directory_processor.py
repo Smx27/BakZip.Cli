@@ -1,4 +1,6 @@
-from bakzip.services.directory_processor import should_ignore
+from bakzip.services.directory_processor import should_ignore, process_directory
+from unittest.mock import patch
+import os
 
 def test_should_ignore_exact_match():
     ignore_list = ["file.txt"]
@@ -29,3 +31,49 @@ def test_should_ignore_multiple_patterns():
     assert should_ignore("main.pyc", ignore_list) is True
     assert should_ignore("__pycache__", ignore_list) is True
     assert should_ignore("main.py", ignore_list) is False
+
+def test_process_directory_skipped_size_calculation(tmpdir):
+    include_file = tmpdir.join("include.txt")
+    include_file.write("include")
+
+    skip_file = tmpdir.join("skip.txt")
+    skip_file.write("12345") # 5 bytes
+
+    log_file = tmpdir.join("bakzip.log")
+
+    # Ignore both skip.txt AND the log file itself to avoid it being included
+    with patch('bakzip.services.directory_processor.get_ignore_list', return_value=['skip.txt', 'bakzip.log']):
+        files_to_include, skipped_files, total_skipped_size = process_directory(str(tmpdir), str(log_file), verbose=True)
+
+    assert len(files_to_include) == 1
+    assert str(include_file) in files_to_include
+    assert len(skipped_files) == 2
+    assert str(skip_file) in skipped_files
+    assert str(log_file) in skipped_files
+    assert total_skipped_size >= 5 # log file size might be > 0
+
+    assert os.path.exists(str(log_file))
+    with open(str(log_file), 'r') as f:
+        log_content = f.read()
+        assert f"Skipped: {str(skip_file)} Size: 5 \n" in log_content
+        assert f"Processed directory: {str(tmpdir)} \n" in log_content
+
+def test_process_directory_no_size_when_not_verbose(tmpdir):
+    include_file = tmpdir.join("include.txt")
+    include_file.write("include")
+
+    skip_file = tmpdir.join("skip.txt")
+    skip_file.write("12345") # 5 bytes
+
+    log_file = tmpdir.join("bakzip.log")
+
+    with patch('bakzip.services.directory_processor.get_ignore_list', return_value=['skip.txt']):
+        files_to_include, skipped_files, total_skipped_size = process_directory(str(tmpdir), str(log_file), verbose=False)
+
+    assert len(files_to_include) == 1
+    assert str(include_file) in files_to_include
+    assert len(skipped_files) == 1
+    assert str(skip_file) in skipped_files
+    assert total_skipped_size == 0
+
+    assert not os.path.exists(str(log_file))
