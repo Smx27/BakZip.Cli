@@ -2,7 +2,7 @@
 """
 This module provides functions for creating ZIP archives.
 
-The `#! /usr/env/bin python` function allows you to create a TAR archive from a list of files,
+The `create_zip` function allows you to create a ZIP archive from a list of files,
 with optional compression using pyzipper.
 """
 import os
@@ -44,7 +44,7 @@ def create_zip(files, output, password=None, compression='normal', base_dir=None
             try:
                 zip_file.write(file, arcname)
             except OSError as e:
-                print(f"Error adding {file} to tar file: {e}")
+                print(f"Error adding {file} to zip file: {e}")
 
 if __name__ == "__main__":
     create_zip(["test.txt"], "test.zip", "password", "normal")
