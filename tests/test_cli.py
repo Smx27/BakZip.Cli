@@ -4,6 +4,7 @@ Test suite for the BakZip CLI.
 """
 import os
 import shutil
+from unittest.mock import MagicMock
 import pytest
 from bakzip.services.directory_processor import process_directory
 from bakzip.services.zip_service import create_zip
@@ -61,3 +62,30 @@ def test_create_tar(temp_directory):
     output_file = str(temp_directory.join("test.tar"))
     create_tar(files_to_include, output_file, 'gz', base_dir=str(temp_directory))
     assert os.path.exists(output_file)
+
+def test_no_traceback_on_error(capsys):
+    """
+    Test that no traceback is printed to stdout when an error occurs,
+    even in verbose mode.
+    """
+    from unittest.mock import patch
+    from bakzip.main import main
+
+    # Mock arguments for verbose mode
+    class MockArgs:
+        directory = '.'
+        output = 'test_output'
+        format = 'zip'
+        compression = 'normal'
+        encryption = 'none'
+        verbose = True
+        password = None
+
+    with patch("bakzip.main.parse_arguments", return_value=MockArgs()), \
+         patch("bakzip.main.process_directory", side_effect=Exception("Test Error")):
+        main()
+
+    captured = capsys.readouterr()
+    assert "An error occurred: Test Error" in captured.out
+    assert "Traceback (most recent call last):" not in captured.out
+    assert "Full traceback has been logged to:" in captured.out
