@@ -44,7 +44,7 @@ def create_zip(files, output, password=None, compression='normal', base_dir=None
             try:
                 zip_file.write(file, arcname)
             except OSError as e:
-                print(f"Error adding {file} to tar file: {e}")
+                print(f"Error adding {file} to zip file: {e}")
 
 if __name__ == "__main__":
     create_zip(["test.txt"], "test.zip", "password", "normal")

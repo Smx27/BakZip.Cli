@@ -88,7 +88,14 @@ def main():
     except Exception as ex:
         print(f'An error occurred: {ex}')
         if verbose:
-            print(traceback.format_exc())
+            # Log the traceback to the log file instead of printing it to stdout
+            try:
+                with open(log_file_path, 'a', encoding='utf-8') as log_file:
+                    log_file.write(f"\nAn error occurred during the backup process: {ex}\n")
+                    log_file.write(traceback.format_exc())
+                print(f'Full traceback has been logged to: {log_file_path}')
+            except Exception as log_err:
+                print(f'Failed to log traceback to {log_file_path}: {log_err}')
 
 if __name__ == '__main__':
     main()
