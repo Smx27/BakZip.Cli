@@ -9,7 +9,7 @@ class TestCommandLineOptions(unittest.TestCase):
             args = parse_arguments()
             self.assertEqual(args.directory, '.')
             self.assertEqual(args.output, 'default')
-            self.assertIsNone(args.password)
+            self.assertFalse(args.password)
             self.assertEqual(args.compression, 'normal')
             self.assertEqual(args.encryption, 'none')
             self.assertEqual(args.format, 'zip')
@@ -21,7 +21,7 @@ class TestCommandLineOptions(unittest.TestCase):
             'bakzip',
             '--directory', '/home/user/data',
             '--output', 'my_backup',
-            '--password', 'secure_pass',
+            '--password',
             '--compression', 'maximum',
             '--encryption', 'aes',
             '--format', 'tar',
@@ -31,7 +31,7 @@ class TestCommandLineOptions(unittest.TestCase):
             args = parse_arguments()
             self.assertEqual(args.directory, '/home/user/data')
             self.assertEqual(args.output, 'my_backup')
-            self.assertEqual(args.password, 'secure_pass')
+            self.assertTrue(args.password)
             self.assertEqual(args.compression, 'maximum')
             self.assertEqual(args.encryption, 'aes')
             self.assertEqual(args.format, 'tar')
@@ -43,7 +43,7 @@ class TestCommandLineOptions(unittest.TestCase):
             'bakzip',
             '-d', './src',
             '-o', 'src_backup',
-            '-p', 'p@ss',
+            '-p',
             '-c', 'fast',
             '-e', 'rsa',
             '-f', 'gz',
@@ -53,7 +53,7 @@ class TestCommandLineOptions(unittest.TestCase):
             args = parse_arguments()
             self.assertEqual(args.directory, './src')
             self.assertEqual(args.output, 'src_backup')
-            self.assertEqual(args.password, 'p@ss')
+            self.assertTrue(args.password)
             self.assertEqual(args.compression, 'fast')
             self.assertEqual(args.encryption, 'rsa')
             self.assertEqual(args.format, 'gz')
