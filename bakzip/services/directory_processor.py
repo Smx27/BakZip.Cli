@@ -58,7 +58,7 @@ def should_ignore(path, ignore_list):
 
     Args:
         path: The path to check.
-        ignore_list: The list of ignore patterns.
+        ignore_list: The list (or tuple) of ignore patterns.
 
     Returns:
         True if the path should be ignored, False otherwise.
@@ -66,7 +66,10 @@ def should_ignore(path, ignore_list):
     if not ignore_list:
         return False
 
-    compiled_regex = _get_compiled_regex(tuple(ignore_list))
+    if not isinstance(ignore_list, tuple):
+        ignore_list = tuple(ignore_list)
+
+    compiled_regex = _get_compiled_regex(ignore_list)
     if compiled_regex:
         # We must normcase the path as well to match the normcased patterns.
         return bool(compiled_regex.match(os.path.normcase(path)))
@@ -88,7 +91,7 @@ def process_directory(directory, log_file_path, verbose=False):
             - A list of skipped files.
             - The total size of skipped files (calculated only if verbose is True).
     """
-    ignore_list = get_ignore_list()
+    ignore_list = tuple(get_ignore_list())
     files_to_include = []
     skipped_files = []
     total_skipped_size = 0
