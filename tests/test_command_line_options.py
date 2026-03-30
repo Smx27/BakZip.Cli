@@ -1,6 +1,5 @@
 import unittest
 from unittest.mock import patch
-import sys
 from bakzip.utilities.command_line_options import parse_arguments
 
 class TestCommandLineOptions(unittest.TestCase):
