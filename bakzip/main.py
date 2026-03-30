@@ -36,9 +36,11 @@ def main():
     print(result)
     print('by @smx27 Github: @smx27')
     args = parse_arguments()
-    password = args.password
-    if password is True:
-        password = getpass.getpass("Enter password to protect the backup file: ")
+    password = None
+    if args.password:
+        password = os.environ.get('BAKZIP_PASSWORD')
+        if not password:
+            password = getpass.getpass("Enter password to protect the backup file: ")
     directory = args.directory
     output = args.output or f'backup_{os.path.basename(directory)}'
     if args.format == 'zip':
