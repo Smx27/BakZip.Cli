@@ -1,87 +1,62 @@
-import time
-import fnmatch
-import re
-import os
 import sys
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
-# Mock missing dependencies as in tests/conftest.py
+# Mock missing dependencies
 mock_pyfiglet = MagicMock()
 sys.modules["pyfiglet"] = mock_pyfiglet
+
 mock_pyzipper = MagicMock()
 mock_pyzipper.ZIP_LZMA = 1
 mock_pyzipper.ZIP_DEFLATED = 2
 mock_pyzipper.ZIP_BZIP2 = 3
 sys.modules["pyzipper"] = mock_pyzipper
+
 mock_tqdm_mod = MagicMock()
 sys.modules["tqdm"] = mock_tqdm_mod
 mock_tqdm_mod.tqdm = MagicMock()
 
-# Add the current directory to sys.path
-sys.path.append(os.getcwd())
+import timeit
+import os
+import shutil
+from bakzip.services.directory_processor import process_directory
 
-# Define the original implementation manually
-def should_ignore_original(path, ignore_list):
-    for pattern in ignore_list:
-        if fnmatch.fnmatch(path, pattern):
-            return True
-    return False
+def setup_benchmark_dir(num_files=1000):
+    test_dir = 'benchmark_test_dir'
+    if os.path.exists(test_dir):
+        shutil.rmtree(test_dir)
+    os.makedirs(test_dir)
 
-# Import the optimized implementation
-from bakzip.services.directory_processor import should_ignore as should_ignore_optimized
+    for i in range(num_files):
+        with open(os.path.join(test_dir, f'file_{i}.txt'), 'w') as f:
+            f.write('content')
 
-def benchmark_original(paths, ignore_list):
-    start_time = time.time()
-    ignored_count = 0
-    for path in paths:
-        if should_ignore_original(path, ignore_list):
-            ignored_count += 1
-    end_time = time.time()
-    return end_time - start_time, ignored_count
-
-def benchmark_optimized(paths, ignore_list):
-    start_time = time.time()
-    ignored_count = 0
-    for path in paths:
-        if should_ignore_optimized(path, ignore_list):
-            ignored_count += 1
-    end_time = time.time()
-    return end_time - start_time, ignored_count
+    return test_dir
 
 def run_benchmark():
-    # Generate some patterns
-    ignore_list = [
-        "*.pyc", "*.pyo", "__pycache__", ".git", ".svn", ".hg",
-        "node_modules", "vendor", "dist", "build", "*.log", "*.tmp",
-        "temp_*", "cache/*", "logs/*.log", "coverage/*", ".env"
-    ] * 10 # Increase pattern count
+    test_dir = setup_benchmark_dir(5000)
+    log_file = 'benchmark.log'
+    # Define a mock ignore list to use for the benchmark
+    mock_ignore = ['file_1*', '*.log', 'temp/']
 
-    # Generate some paths
-    paths = []
-    for i in range(1000):
-        paths.append(f"src/module_{i}/file_{i}.py")
-        paths.append(f"src/module_{i}/file_{i}.pyc")
-        paths.append(f"node_modules/pkg_{i}/index.js")
-        paths.append(f"dist/bundle_{i}.js")
-        paths.append(f"logs/error_{i}.log")
-        paths.append(f"src/module_{i}/temp_data.txt")
+    def test_func():
+        # Patch get_ignore_list to return our mock ignore list consistently
+        with patch('bakzip.services.directory_processor.get_ignore_list', return_value=mock_ignore):
+            process_directory(test_dir, log_file, verbose=False)
 
-    print(f"Benchmarking with {len(ignore_list)} patterns and {len(paths)} paths...")
+    timer = timeit.Timer(test_func)
+    # Run once to warm up cache
+    test_func()
 
-    orig_time, orig_count = benchmark_original(paths, ignore_list)
-    print(f"Original should_ignore: {orig_time:.4f}s (Ignored: {orig_count})")
+    iterations = 20
+    total_time = timer.timeit(number=iterations)
+    avg_time = total_time / iterations
 
-    opt_time, opt_count = benchmark_optimized(paths, ignore_list)
-    print(f"Optimized (regex):      {opt_time:.4f}s (Ignored: {opt_count})")
+    print(f"Average time for process_directory with 5000 files: {avg_time:.5f} seconds")
 
-    if orig_count != opt_count:
-        print(f"WARNING: Counts differ! Original: {orig_count}, Optimized: {opt_count}")
-
-    if opt_time < orig_time:
-        improvement = (orig_time - opt_time) / orig_time * 100
-        print(f"Improvement: {improvement:.2f}%")
-    else:
-        print("No improvement detected.")
+    if os.path.exists(test_dir):
+        shutil.rmtree(test_dir)
+    if os.path.exists(log_file):
+        os.remove(log_file)
 
 if __name__ == "__main__":
     run_benchmark()
