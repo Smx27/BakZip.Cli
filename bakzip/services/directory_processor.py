@@ -102,10 +102,13 @@ def process_directory(directory, log_file_path, verbose=False):
 
     try:
         for root, dirs, files in os.walk(directory, topdown=True):
+            rel_root = os.path.relpath(root, directory)
+            if rel_root == '.':
+                rel_root = ''
+
             filtered_dirs = []
             for d in dirs:
-                full_path = os.path.join(root, d)
-                relative_path = os.path.relpath(full_path, directory)
+                relative_path = os.path.join(rel_root, d)
                 if not should_ignore(relative_path, ignore_list):
                     filtered_dirs.append(d)
             dirs[:] = filtered_dirs
@@ -113,7 +116,7 @@ def process_directory(directory, log_file_path, verbose=False):
             log_entries = []
             for file in files:
                 file_path = os.path.join(root, file)
-                rel_path = os.path.relpath(file_path, directory)
+                rel_path = os.path.join(rel_root, file)
                 if not should_ignore(rel_path, ignore_list):
                     files_to_include.append(file_path)
                 else:
