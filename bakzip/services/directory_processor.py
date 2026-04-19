@@ -23,7 +23,7 @@ def _get_compiled_regex(ignore_list_tuple):
     return re.compile('|'.join(regex_patterns))
 
 
-def get_ignore_list():
+def get_ignore_list(directory):
     """
     Returns a list of ignore patterns from a .bakzipignore file.
 
@@ -34,7 +34,7 @@ def get_ignore_list():
         A list of ignore patterns.
     """
     ignore_list = []
-    ignore_file = './.bakzipignore'
+    ignore_file = os.path.join(directory, '.bakzipignore')
     if os.path.exists(ignore_file):
         with open(ignore_file, 'r', encoding='utf-8') as f:
             for line in f:
@@ -91,7 +91,7 @@ def process_directory(directory, log_file_path, verbose=False):
             - A list of skipped files.
             - The total size of skipped files (calculated only if verbose is True).
     """
-    ignore_list = tuple(get_ignore_list())
+    ignore_list = tuple(get_ignore_list(directory))
     files_to_include = []
     skipped_files = []
     total_skipped_size = 0
