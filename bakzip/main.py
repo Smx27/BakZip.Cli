@@ -32,6 +32,9 @@ def main():
         ValueError: If an unsupported format is specified.
         Exception: If any other error occurs during the backup process.
     """
+    # Set restrictive umask (0o077) to ensure all created files (archives and logs)
+    # have restrictive permissions (0o600 for files, 0o700 for directories).
+    os.umask(0o077)
     result = pyfiglet.figlet_format("BakZIP", font = "slant")
     print(result)
     print('by @smx27 Github: @smx27')
